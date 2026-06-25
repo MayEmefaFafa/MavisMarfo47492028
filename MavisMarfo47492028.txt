@@ -1,724 +1,216 @@
-Q1.
-MariaDB [movieroom]> create table membership (
-    ->     mem_num int  primary key not null,
-    ->     mem_fname varchar(30) not null,
-    ->     mem_lname varchar(30) not null,
-    ->     mem_street varchar(50) not null,
-    ->     mem_city varchar(30) not null,
-    ->     mem_state char(2) not null,
-    ->     mem_zip char(5) not null,
-    ->     mem_balance int not null default 0,
-    -> );
+MariaDB [category]> select * from employee;
++-------+--------+---------+------------+------------+------+--------------------+--------+
+| empNo | fName  | lName   | address    | DOB        | sex  | position           | deptNo |
++-------+--------+---------+------------+------------+------+--------------------+--------+
+| E1    | Ama    | Mensah  | Accra      | 1985-03-15 | F    | Manager            |     10 |
+| E10   | Fiifi  | Darko   | Sunyani    | 1990-02-20 | M    | Software Developer |     50 |
+| E2    | Kwame  | Asante  | Kumasi     | 1990-07-22 | M    | Team Leader        |     10 |
+| E3    | Akosua | Boateng | Tamale     | 1992-11-10 | F    | Manager            |     20 |
+| E4    | Kojo   | Owusu   | Cape Coast | 1995-05-18 | M    | Software Developer |     20 |
+| E5    | Efua   | Addo    | Takoradi   | 1988-09-25 | F    | Analyst            |     30 |
+| E6    | Yaw    | Bediako | Accra      | 1991-01-12 | M    | Analyst            |     30 |
+| E7    | Abena  | Osei    | Koforidua  | 1993-06-30 | F    | Software Developer |     40 |
+| E8    | Kofi   | Appiah  | Tema       | 1989-09-05 | M    | Team Leader        |     40 |
+| E9    | Adjoa  | Nyarko  | Ho         | 1994-12-11 | F    | Analyst            |     50 |
++-------+--------+---------+------------+------------+------+--------------------+--------+
+10 rows in set (0.001 sec)
+
+
+MariaDB [category]> select * from project;
++--------+----------------------------------+--------+
+| projNo | projName                         | deptNo |
++--------+----------------------------------+--------+
+| AI     | AI Assistant                     |     40 |
+| CRM    | Customer Relationship Management |     40 |
+| DBMS   | Database Management System       |     20 |
+| HR     | Human Resource System            |     30 |
+| LIB    | Library Management System        |     20 |
+| NET    | Network Monitoring               |     50 |
+| PAY    | Payroll System                   |     10 |
+| SCCS   | Student Course Control System    |     10 |
+| SEC    | Security Monitoring System       |     30 |
+| WEB    | University Website               |     10 |
++--------+----------------------------------+--------+
+10 rows in set (0.001 sec)
+
+
+MariaDB [category]> select * from department;
++--------+----------------------+----------+
+| deptNo | deptName             | mgrEmpNo |
++--------+----------------------+----------+
+|     10 | Software Development | E1       |
+|     20 | Data Analytics       | E3       |
+|     30 | Cyber Security       | E5       |
+|     40 | AI Research          | E7       |
+|     50 | Networking           | E9       |
++--------+----------------------+----------+
+5 rows in set (0.001 sec)
+
+
+MariaDB [category]> select * from workson;
++-------+--------+------------+-------------+
+| empNo | projNo | dateWorked | hoursWorked |
++-------+--------+------------+-------------+
+| E1    | SCCS   | 2026-06-01 |           8 |
+| E1    | SCCS   | 2026-06-02 |           6 |
+| E2    | PAY    | 2026-06-01 |           7 |
+| E3    | DBMS   | 2026-06-01 |           5 |
+| E4    | WEB    | 2026-06-02 |           8 |
+| E5    | SEC    | 2026-06-03 |           6 |
+| E6    | HR     | 2026-06-03 |           7 |
+| E7    | AI     | 2026-06-04 |           8 |
+| E8    | CRM    | 2026-06-04 |           5 |
+| E9    | NET    | 2026-06-05 |           6 |
++-------+--------+------------+-------------+
+10 rows in set (0.001 sec)
+
+
+
+
+7.25)
+
+MariaDB [category]> create view FemaleManagedProjects as
+    -> select
+    ->     p.projNo,
+    ->     p.projName,
+    ->     p.deptNo
+    -> from Project p
+    -> join Department d on p.deptNo = d.deptNo
+    -> join Employee e on d.mgrEmpNo = e.empNo
+    -> where e.sex = 'F'
+    -> order by p.projNo;
+Query OK, 0 rows affected (0.033 sec)
+
+MariaDB [category]> select * from FemaleManagedProjects;
++--------+----------------------------------+--------+
+| projNo | projName                         | deptNo |
++--------+----------------------------------+--------+
+| AI     | AI Assistant                     |     40 |
+| CRM    | Customer Relationship Management |     40 |
+| DBMS   | Database Management System       |     20 |
+| HR     | Human Resource System            |     30 |
+| LIB    | Library Management System        |     20 |
+| NET    | Network Monitoring               |     50 |
+| PAY    | Payroll System                   |     10 |
+| SCCS   | Student Course Control System    |     10 |
+| SEC    | Security Monitoring System       |     30 |
+| WEB    | University Website               |     10 |
++--------+----------------------------------+--------+
+10 rows in set (0.032 sec)
+
+
 
-
-MariaDB [movieroom]> create table rental (
-    ->     rent_num int not null,
-    ->     mem_num int not null,
-    ->     rent_date date not null,
-    ->     primary key (rent_num),
-    ->     foreign key (mem_num) references 
-           membership(mem_num)                               
-    -> );
-
-
-
-MariaDB [movieroom]> create table price (
-    ->     price_code int primary key not null,
-    ->     price_description varchar(50) not null,
-    ->     price_rent_fee decimal(2,1) not null,
-    ->     price_daily_late_fee decimal(2,1) not null,
-    -> );
-
-
-MariaDB [movieroom]> create table movie (
-    ->     movie_num int not null,
-    ->     price_code int,
-    ->     movie_title varchar(100) not null,
-    ->     movie_year int not null,
-    ->     movie_cost decimal(5,2) not null,
-    ->     movie_genre varchar(30) not null,
-    ->     primary key (movie_num),
-    ->     foreign key (price_code) references  price(price_code)
-    -> );
-
-
-MariaDB [movieroom]> create table video (
-    ->     vid_num int not null,
-    ->     vid_indate date not null,
-    ->     movie_num int not null,
-    ->     primary key (vid_num),
-    ->     foreign key (movie_num) references movie(movie_num)
-    -> );
-
-
-MariaDB [movieroom]> create table detailrental (
-    ->     rent_num int not null,
-    ->     vid_num int not null,
-    ->     detail_fee decimal(2,1) not null,
-    ->     detail_duedate date not null,
-    ->     detail_returndate date,
-    ->     detail_dailylatefee int,
-    ->     primary key (rent_num, vid_num),
-    ->     foreign key (rent_num) references rental(rent_num),
-    ->     foreign key (vid_num) references video(vid_num)
-    -> );
-
-
-
-
-
-Q2. MariaDB [movieroom]> insert into membership
-    -> (mem_num, mem_fname, mem_lname, mem_street, mem_city, mem_state, mem_zip, mem_balance)
-    -> values
-    -> (102, 'Tami', 'Dawson', '2632 Takli Circle', 'Norene', 'TN', '37136', 11),
-    -> (103, 'Curt', 'Knight', '4025 Cornell Court', 'Flatgap', 'KY', '41219', 6),
-    -> (104, 'Jamal', 'Melendez', '788 East 145th Avenue', 'Quebeck', 'TN', '38579', 0),
-    -> (105, 'Iva', 'Mcclain', '6045 Musket Ball Circle', 'Summit', 'KY', '42783', 15),
-    -> (106, 'Miranda', 'Parks', '4469 Maxwell Place', 'Germantown', 'TN', '38183', 0),
-    -> (107, 'Rosario', 'Elliott', '7578 Danner Avenue', 'Columbia', 'TN', '38402', 5),
-    -> (108, 'Mattie', 'Guy', '4390 Evergreen Street', 'Lily', 'KY', '40740', 0),
-    -> (109, 'Clint', 'Ochoa', '1711 Elm Street', 'Greeneville', 'TN', '37745', 10),
-    -> (110, 'Lewis', 'Rosales', '4524 Southwind Circle', 'Counce', 'TN', '38326', 0),
-    -> (111, 'Stacy', 'Mann', '2789 East Cook Avenue', 'Murfreesboro', 'TN', '37132', 8),
-    -> (112, 'Luis', 'Trujillo', '7267 Melvin Avenue', 'Heiskell', 'TN', '37754', 3),
-    -> (113, 'Minnie', 'Gonzales', '6430 Vasili Drive', 'Williston', 'TN', '38076', 0);
-
-MariaDB [movieroom]> select * from membership;
-+---------+-----------+-----------+-------------------------+--------------+-----------+---------+-------------+
-| mem_num | mem_fname | mem_lname | mem_street              | mem_city     | mem_state | mem_zip | mem_balance |
-+---------+-----------+-----------+-------------------------+--------------+-----------+---------+-------------+
-|     102 | Tami      | Dawson    | 2632 Takli Circle       | Norene       | TN        | 37136   |          11 |
-|     103 | Curt      | Knight    | 4025 Cornell Court      | Flatgap      | KY        | 41219   |           6 |
-|     104 | Jamal     | Melendez  | 788 East 145th Avenue   | Quebeck      | TN        | 38579   |           0 |
-|     105 | Iva       | Mcclain   | 6045 Musket Ball Circle | Summit       | KY        | 42783   |          15 |
-|     106 | Miranda   | Parks     | 4469 Maxwell Place      | Germantown   | TN        | 38183   |           0 |
-|     107 | Rosario   | Elliott   | 7578 Danner Avenue      | Columbia     | TN        | 38402   |           5 |
-|     108 | Mattie    | Guy       | 4390 Evergreen Street   | Lily         | KY        | 40740   |           0 |
-|     109 | Clint     | Ochoa     | 1711 Elm Street         | Greeneville  | TN        | 37745   |          10 |
-|     110 | Lewis     | Rosales   | 4524 Southwind Circle   | Counce       | TN        | 38326   |           0 |
-|     111 | Stacy     | Mann      | 2789 East Cook Avenue   | Murfreesboro | TN        | 37132   |           8 |
-|     112 | Luis      | Trujillo  | 7267 Melvin Avenue      | Heiskell     | TN        | 37754   |           3 |
-|     113 | Minnie    | Gonzales  | 6430 Vasili Drive       | Williston    | TN        | 38076   |           0 |
-+---------+-----------+-----------+-------------------------+--------------+-----------+---------+-------------+
-12 rows in set (0.027 sec)
-
-
-
-MariaDB [movieroom]> insert into rental
-    -> (rent_num, rent_date, mem_num)
-    -> values
-    -> (1001, str_to_date('01-MAR-16','%d-%b-%y'), 103),
-    -> (1002, str_to_date('01-MAR-16','%d-%b-%y'), 105),
-    -> (1003, str_to_date('02-MAR-16','%d-%b-%y'), 102),
-    -> (1004, str_to_date('02-MAR-16','%d-%b-%y'), 110),
-    -> (1005, str_to_date('02-MAR-16','%d-%b-%y'), 111),
-    -> (1006, str_to_date('02-MAR-16','%d-%b-%y'), 107),
-    -> (1007, str_to_date('02-MAR-16','%d-%b-%y'), 104),
-    -> (1008, str_to_date('03-MAR-16','%d-%b-%y'), 105),
-    -> (1009, str_to_date('03-MAR-16','%d-%b-%y'), 111);
-
-MariaDB [movieroom]> select * from rental;
-+----------+---------+------------+
-| rent_num | mem_num | rent_date  |
-+----------+---------+------------+
-|     1001 |     103 | 2016-03-01 |
-|     1002 |     105 | 2016-03-01 |
-|     1003 |     102 | 2016-03-02 |
-|     1004 |     110 | 2016-03-02 |
-|     1005 |     111 | 2016-03-02 |
-|     1006 |     107 | 2016-03-02 |
-|     1007 |     104 | 2016-03-02 |
-|     1008 |     105 | 2016-03-03 |
-|     1009 |     111 | 2016-03-03 |
-+----------+---------+------------+
-9 rows in set (0.001 sec)
-
-
-
-MariaDB [movieroom]> insert into price
-    -> (price_code, price_description, price_rent_fee, price_daily_late_fee)
-    -> values
-    -> (1, 'Standard', 2, 1),
-    -> (2, 'New Release', 3.5, 3),
-    -> (3, 'Discount', 1.5, 1),
-    -> (4, 'Weekly Special', 1, 0.5);
-
-MariaDB [movieroom]> select * from price;
-+------------+-------------------+----------------+----------------------+
-| price_code | price_description | price_rent_fee | price_daily_late_fee |
-+------------+-------------------+----------------+----------------------+
-|          1 | Standard          |            2.5 |                  1.0 |
-|          2 | New Release       |            4.0 |                  3.0 |
-|          3 | Discount          |            2.0 |                  1.0 |
-|          4 | Weekly Special    |            1.5 |                  0.5 |
-+------------+-------------------+----------------+----------------------+
-4 rows in set (0.001 sec)
-
-
-
-MariaDB [movieroom]> insert into movie
-    -> (movie_num, movie_title, movie_year, movie_cost, movie_genre, price_code)
-    -> values
-    -> (1234, 'The Cesar Family Christmas', 2014, 39.95, 'FAMILY', 2),
-    -> (1235, 'Smokey Mountain Wildlife', 2011, 59.95, 'ACTION', 1),
-    -> (1236, 'Richard Goodhope', 2015, 59.95, 'DRAMA', 2),
-    -> (1237, 'Beatnik Fever', 2014, 29.95, 'COMEDY', 2),
-    -> (1238, 'Constant Companion', 2015, 89.95, 'DRAMA', NULL),
-    -> (1239, 'Where Hope Dies', 2005, 25.49, 'DRAMA', 3),
-    -> (1245, 'Time to Burn', 2012, 45.49, 'ACTION', 1),
-    -> (1246, 'What He Doesn’t Know', 2013, 58.29, 'COMEDY', 1);
-
-MariaDB [movieroom]> Select * from movie;
-+-----------+------------+----------------------------+------------+------------+-------------+
-| movie_num | price_code | movie_title                | movie_year | movie_cost | movie_genre |
-+-----------+------------+----------------------------+------------+------------+-------------+
-|      1234 |          2 | The Cesar Family Christmas |       2014 |      39.95 | FAMILY      |
-|      1235 |          3 | Smokey Mountain Wildlife   |       2011 |      59.95 | ACTION      |
-|      1236 |          2 | Richard Goodhope           |       2015 |      59.95 | DRAMA       |
-|      1237 |          2 | Beatnik Fever              |       2014 |      29.95 | COMEDY      |
-|      1238 |       NULL | Constant Companion         |       2015 |      89.95 | DRAMA       |
-|      1239 |          3 | Where Hope Dies            |       2005 |      25.49 | DRAMA       |
-|      1245 |          3 | Time to Burn               |       2010 |      45.49 | ACTION      |
-|      1246 |          1 | What He Doesn't Know       |       2013 |      58.29 | COMEDY      |
-+-----------+------------+----------------------------+------------+------------+-------------+
-8 rows in set (0.026 sec)
-
-
-
-
-MariaDB [movieroom]> insert into video
-    -> (vid_num, vid_indate, movie_num)
-    -> values
-    -> (54321, str_to_date('18-JUN-15','%d-%b-%y'), 1234),
-    -> (54324, str_to_date('18-JUN-15','%d-%b-%y'), 1234),
-    -> (54325, str_to_date('18-JUN-15','%d-%b-%y'), 1234),
-    ->
-    -> (34341, str_to_date('22-JAN-14','%d-%b-%y'), 1235),
-    -> (34342, str_to_date('22-JAN-14','%d-%b-%y'), 1235),
-    ->
-    -> (34366, str_to_date('02-MAR-16','%d-%b-%y'), 1236),
-    -> (34367, str_to_date('02-MAR-16','%d-%b-%y'), 1236),
-    -> (34368, str_to_date('02-MAR-16','%d-%b-%y'), 1236),
-    -> (34369, str_to_date('02-MAR-16','%d-%b-%y'), 1236),
-    ->
-    -> (44392, str_to_date('21-OCT-15','%d-%b-%y'), 1237),
-    -> (44397, str_to_date('21-OCT-15','%d-%b-%y'), 1237),
-    -> (59237, str_to_date('14-FEB-16','%d-%b-%y'), 1237),
-    ->
-    -> (61388, str_to_date('25-JAN-14','%d-%b-%y'), 1239),
-    ->
-    -> (61353, str_to_date('28-JAN-13','%d-%b-%y'), 1245),
-    -> (61354, str_to_date('28-JAN-13','%d-%b-%y'), 1245),
-    ->
-    -> (61367, str_to_date('30-JUL-15','%d-%b-%y'), 1246),
-    -> (61369, str_to_date('30-JUL-15','%d-%b-%y'), 1246);
-
-MariaDB [movieroom]> select * from video;
-+---------+------------+-----------+
-| vid_num | vid_indate | movie_num |
-+---------+------------+-----------+
-|   34341 | 2014-01-22 |      1235 |
-|   34342 | 2014-01-22 |      1235 |
-|   34366 | 2016-03-02 |      1236 |
-|   34367 | 2016-03-02 |      1236 |
-|   34368 | 2016-03-02 |      1236 |
-|   34369 | 2016-03-02 |      1236 |
-|   44392 | 2015-10-21 |      1237 |
-|   44397 | 2015-10-21 |      1237 |
-|   54321 | 2015-06-18 |      1234 |
-|   54324 | 2015-06-18 |      1234 |
-|   54325 | 2015-06-18 |      1234 |
-|   59237 | 2016-02-14 |      1237 |
-|   61353 | 2013-01-28 |      1245 |
-|   61354 | 2013-01-28 |      1245 |
-|   61367 | 2015-07-30 |      1246 |
-|   61369 | 2015-07-30 |      1246 |
-|   61388 | 2014-01-25 |      1239 |
-+---------+------------+-----------+
-17 rows in set (0.001 sec)
-
-
-MariaDB [movieroom]> insert into detailrental
-    -> (rent_num, vid_num, detail_fee, detail_duedate, detail_returndate, detail_dailylatefee)
-    -> values
-    -> (1001, 34342, 2, str_to_date('04-MAR-16','%d-%b-%y'), str_to_date('02-MAR-16','%d-%b-%y'), NULL),
-    -> (1001, 61353, 2, str_to_date('04-MAR-16','%d-%b-%y'), str_to_date('03-MAR-16','%d-%b-%y'), 1),
-    -> (1002, 59237, 3.5, str_to_date('04-MAR-16','%d-%b-%y'), str_to_date('04-MAR-16','%d-%b-%y'), 3),
-    -> (1003, 54325, 3.5, str_to_date('04-MAR-16','%d-%b-%y'), str_to_date('09-MAR-16','%d-%b-%y'), 3),
-    -> (1003, 61369, 2, str_to_date('06-MAR-16','%d-%b-%y'), str_to_date('09-MAR-16','%d-%b-%y'), 1),
-    -> (1003, 61388, 0, str_to_date('06-MAR-16','%d-%b-%y'), str_to_date('09-MAR-16','%d-%b-%y'), 1),
-    -> (1004, 44392, 3.5, str_to_date('05-MAR-16','%d-%b-%y'), str_to_date('07-MAR-16','%d-%b-%y'), 3),
-    -> (1004, 34367, 3.5, str_to_date('05-MAR-16','%d-%b-%y'), str_to_date('07-MAR-16','%d-%b-%y'), 3),
-    -> (1004, 34341, 2, str_to_date('07-MAR-16','%d-%b-%y'), str_to_date('07-MAR-16','%d-%b-%y'), 1),
-    -> (1005, 34342, 2, str_to_date('07-MAR-16','%d-%b-%y'), str_to_date('05-MAR-16','%d-%b-%y'), 1),
-    -> (1005, 44397, 3.5, str_to_date('05-MAR-16','%d-%b-%y'), str_to_date('05-MAR-16','%d-%b-%y'), 3),
-    -> (1006, 34366, 3.5, str_to_date('05-MAR-16','%d-%b-%y'), str_to_date('04-MAR-16','%d-%b-%y'), 3),
-    -> (1006, 61367, 2, str_to_date('07-MAR-16','%d-%b-%y'), NULL, 1),
-    -> (1007, 34368, 3.5, str_to_date('05-MAR-16','%d-%b-%y'), NULL, 3),
-    -> (1008, 34369, 3.5, str_to_date('05-MAR-16','%d-%b-%y'), str_to_date('05-MAR-16','%d-%b-%y'), 3),
-    -> (1009, 54324, 3.5, str_to_date('05-MAR-16','%d-%b-%y'), NULL, 3),
-    -> (1001, 34366, 3.5, str_to_date('04-MAR-16','%d-%b-%y'), str_to_date('02-MAR-16','%d-%b-%y'), 3);
-
-MariaDB [movieroom]> select * from detailrental;
-+----------+---------+------------+----------------+-------------------+---------------------+
-| rent_num | vid_num | detail_fee | detail_duedate | detail_returndate | detail_dailylatefee |
-+----------+---------+------------+----------------+-------------------+---------------------+
-|     1001 |   34342 |        2.0 | 2016-03-04     | 2016-03-02        |                NULL |
-|     1001 |   34366 |        3.5 | 2016-03-04     | 2016-03-02        |                   3 |
-|     1001 |   61353 |        2.0 | 2016-03-04     | 2016-03-03        |                   1 |
-|     1002 |   59237 |        3.5 | 2016-03-04     | 2016-03-04        |                   3 |
-|     1003 |   54325 |        3.5 | 2016-03-04     | 2016-03-09        |                   3 |
-|     1003 |   61369 |        2.0 | 2016-03-06     | 2016-03-09        |                   1 |
-|     1003 |   61388 |        0.0 | 2016-03-06     | 2016-03-09        |                   1 |
-|     1004 |   34341 |        2.0 | 2016-03-07     | 2016-03-07        |                   1 |
-|     1004 |   34367 |        3.5 | 2016-03-05     | 2016-03-07        |                   3 |
-|     1004 |   44392 |        3.5 | 2016-03-05     | 2016-03-07        |                   3 |
-|     1005 |   34342 |        2.0 | 2016-03-07     | 2016-03-05        |                   1 |
-|     1005 |   44397 |        3.5 | 2016-03-05     | 2016-03-05        |                   3 |
-|     1006 |   34366 |        3.5 | 2016-03-05     | 2016-03-04        |                   3 |
-|     1006 |   61367 |        2.0 | 2016-03-07     | NULL              |                   1 |
-|     1007 |   34368 |        3.5 | 2016-03-05     | NULL              |                   3 |
-|     1008 |   34369 |        3.5 | 2016-03-05     | 2016-03-05        |                   3 |
-|     1009 |   54324 |        3.5 | 2016-03-05     | NULL              |                   3 |
-+----------+---------+------------+----------------+-------------------+---------------------+
-17 rows in set (0.001 sec)
-
-
-
-
-
-
-
-
-Q3.MariaDB [MovieRoom]> select movie_num, movie_year from movie where movie_num=1245;
-+-----------+------------+
-| movie_num | movie_year |
-+-----------+------------+
-|      1245 |       2012 |
-+-----------+------------+
-1 row in set (0.007 sec)
-
-MariaDB [MovieRoom]> update movie set movie_year = 2010 where movie_num=1245;
-Query OK, 1 row affected (0.004 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-MariaDB [MovieRoom]>  select movie_num, movie_year from movie where movie_num=1245;
-+-----------+------------+
-| movie_num | movie_year |
-+-----------+------------+
-|      1245 |       2010 |
-+-----------+------------+
-1 row in set (0.000 sec)
-
-
-
-
-Q4.MariaDB [MovieRoom]> select movie_num, price_code, movie_genre from movie where movie_genre='ACTION';
-+-----------+------------+-------------+
-| movie_num | price_code | movie_genre |
-+-----------+------------+-------------+
-|      1235 |          1 | ACTION      |
-|      1245 |          1 | ACTION      |
-+-----------+------------+-------------+
-2 rows in set (0.005 sec)
-
-MariaDB [MovieRoom]> update movie set price_code=3 where movie_genre='ACTION';
-Query OK, 2 rows affected (0.004 sec)
-Rows matched: 2  Changed: 2  Warnings: 0
-
-MariaDB [MovieRoom]>  select movie_num, price_code, movie_genre from movie where movie_genre='ACTION';
-+-----------+------------+-------------+
-| movie_num | price_code | movie_genre |
-+-----------+------------+-------------+
-|      1235 |          3 | ACTION      |
-|      1245 |          3 | ACTION      |
-+-----------+------------+-------------+
-2 rows in set (0.000 sec)
-
-
-
-
-Q5. MariaDB [MovieRoom]> select price_rent_fee from price;
-+----------------+
-| price_rent_fee |
-+----------------+
-|            2.0 |
-|            3.5 |
-|            1.5 |
-|            1.0 |
-+----------------+
-4 rows in set (0.001 sec)
-
-MariaDB [MovieRoom]> update price set price_rent_fee =  price_rent_fee + 0.50;
-Query OK, 4 rows affected (0.005 sec)
-Rows matched: 4  Changed: 4  Warnings: 0
-
-MariaDB [MovieRoom]>  select price_rent_fee from price;
-+----------------+
-| price_rent_fee |
-+----------------+
-|            2.5 |
-|            4.0 |
-|            2.0 |
-|            1.5 |
-+----------------+
-4 rows in set (0.000 sec)
-
-
-
-Q6. 
-
-MariaDB [MovieRoom]> select movie_title, movie_year, movie_genre from movie;
-+----------------------------+------------+-------------+
-| movie_title                 | movie_year | movie_genre |
-+----------------------------+------------+-------------+
-| The Cesar Family Christmas |       2014 | FAMILY      |
-| Smokey Mountain Wildlife   |       2011 | ACTION      |
-| Richard Goodhope           |       2015 | DRAMA       |
-| Beatnik Fever              |       2014 | COMEDY      |
-| Constant Companion         |       2015 | DRAMA       |
-| Where Hope Dies            |       2005 | DRAMA       |
-| Time to Burn               |       2010 | ACTION      |
-| What He Doesn't Know       |       2013 | COMEDY      |
-+----------------------------+------------+-------------+
-8 rows in set (0.001 sec)
-
-
-
-Q7.MariaDB [MovieRoom]> select movie_year, movie_title, movie_cost from movie order by movie_year desc, movie_title asc;
-+------------+----------------------------+------------+
-| movie_year | movie_title               | movie_cost |
-+------------+----------------------------+------------+
-|       2015 | Constant Companion         |      89.95 |
-|       2015 | Richard Goodhope           |      59.95 |
-|       2014 | Beatnik Fever              |      29.95 |
-|       2014 | The Cesar Family Christmas |      39.95 |
-|       2013 | What He Doesn't Know       |      58.29 |
-|       2011 | Smokey Mountain Wildlife   |      59.95 |
-|       2010 | Time to Burn               |      45.49 |
-|       2005 | Where Hope Dies            |      25.49 |
-+------------+----------------------------+------------+
-8 rows in set (0.026 sec)
-
-
-
-Q8. MariaDB [MovieRoom]> SELECT movie_title, movie_year,movie_genre FROM movie ORDER BY movie_genre ASC, movie_year DESC;
-+----------------------------+------------+-------------+
-| movie_title                | movie_year | movie_genre |
-+----------------------------+------------+-------------+
-| Smokey Mountain Wildlife   | 2011       | ACTION      |
-| Time to Burn               | 2010       | ACTION      |
-| Beatnik Fever              | 2014       | COMEDY      |
-| What He Doesn't Know       | 2013       | COMEDY      |
-| Richard Goodhope           | 2015       | DRAMA       |
-| Constant Companion         | 2015       | DRAMA       |
-| Where Hope Dies            | 2005       | DRAMA       |
-| The Cesar Family Christmas | 2014       | FAMILY      |
-+----------------------------+------------+-------------+
-8 rows in set (0.002 sec)
-
-
-
-
-Q9. MariaDB [movieroom]> select movie_num, movie_title, price_code from movie where movie_title like'R%';
-+-----------+------------------+------------+
-| movie_num | movie_title      | price_code |
-+-----------+------------------+------------+
-|      1236 | Richard Goodhope |          2 |
-+-----------+------------------+------------+
-1 row in set (0.001 sec)
-
-
-
-
-
-Q10. MariaDB [movieroom]>  select movie_title, movie_year, movie_cost from movie where movie_title like '%hope%' order by movie_title asc;
-+------------------+------------+------------+
-| movie_title      | movie_year | movie_cost |
-+------------------+------------+------------+
-| Richard Goodhope |       2015 |      59.95 |
-| Where Hope Dies  |       2005 |      25.49 |
-+------------------+------------+------------+
-2 rows in set (0.028 sec)
-
-
-
-Q11 m. MariaDB [movieroom]>  select movie_title, movie_year, movie_genre from movie where movie_genre = 'ACTION';
-+--------------------------+------------+-------------+
-| movie_title              | movie_year | movie_genre |
-+--------------------------+------------+-------------+
-| Smokey Mountain Wildlife |       2011 | ACTION      |
-| Time to Burn             |       2010 | ACTION      |
-+--------------------------+------------+-------------+
-2 rows in set (0.004 sec)
-
-
-Q12. MariaDB [movieroom]> select movie_num,movie_title, movie_cost from movie where movie_cost > 40;
-+-----------+--------------------------+------------+
-| movie_num | movie_title              | movie_cost |
-+-----------+--------------------------+------------+
-|      1235 | Smokey Mountain Wildlife |      59.95 |
-|      1236 | Richard Goodhope         |      59.95 |
-|      1238 | Constant Companion       |      89.95 |
-|      1245 | Time to Burn             |      45.49 |
-|      1246 | What He Doesn't Know     |      58.29 |
-+-----------+--------------------------+------------+
-5 rows in set (0.005 sec)
-
-
-
-Q13. MariaDB [movieroom]> select movie_num, movie_title, movie_cost, movie_genre from movie where (movie_genre = 'ACTION' or movie_genre = 'COMEDY') and movie_cost < 50 order by movie_genre asc;
-+-----------+---------------+------------+-------------+
-| movie_num | movie_title   | movie_cost | movie_genre |
-+-----------+---------------+------------+-------------+
-|      1245 | Time to Burn  |      45.49 | ACTION      |
-|      1237 | Beatnik Fever |      29.95 | COMEDY      |
-+-----------+---------------+------------+-------------+
-2 rows in set (0.001 sec)
-
-
-
-
-Q14.  MariaDB [movieroom]> SELECT mem_num, mem_fname, mem_lname, mem_street, mem_state, mem_balance from membership where mem_state = 'TN' and mem_balance <5 and mem_street like '%Avenue';
-+---------+-----------+-----------+-----------------------+-----------+-------------+
-| mem_num | mem_fname | mem_lname | mem_street            | mem_state | mem_balance |
-+---------+-----------+-----------+-----------------------+-----------+-------------+
-|     104 | Jamal     | Melendez  | 788 East 145th Avenue | TN        |           0 |
-|     112 | Luis      | Trujillo  | 7267 Melvin Avenue    | TN        |           3 |
-+---------+-----------+-----------+-----------------------+-----------+-------------+
-2 rows in set (0.001 sec)
-
-
-
-Q15. MariaDB [movieroom]>  select movie_genre, count(*) as "Number Of Movies" from movie group by movie_genre;
-+-------------+----------------+
-| movie_genre | Number Of Movies|
-+-------------+-----------------+
-| ACTION      |              2  |
-| COMEDY      |              2  |
-| DRAMA       |              3  |
-| FAMILY      |              1  |
-+-------------+-----------------+
-4 rows in set (0.001 sec)
-
-
-
-Q16.MariaDB [movieroom]> select round(avg(movie_cost), 4) as "Average Movie Cost" from movie;
-+--------------------+
-| Average Movie Cost |
-+--------------------+
-|            51.1275 |
-+--------------------+
-1 row in set (0.026 sec)
-
-
-
-Q17. MariaDB [movieroom]>  select movie_genre, round(avg(movie_cost),2) as "Average Cost" from movie group by movie_genre;
-+-------------+--------------+
-| movie_genre | Average Cost |
-+-------------+--------------+
-| ACTION      |        52.72 |
-| COMEDY      |        44.12 |
-| DRAMA       |        58.46 |
-| FAMILY      |        39.95 |
-+-------------+--------------+
-4 rows in set (0.001 sec)
-
-
-Q18. MariaDB [movieroom]> select movie_title, movie_genre, price_description,trim(trailing '.' from trim(trailing '0' from price_rent_fee)) from movie, price where movie.price_code = price.price_code order by price_description desc, movie_genre desc;
-+----------------------------+-------------+-------------------+----------------------------------------------------------------+
-| movie_title                | movie_genre | price_description | trim(trailing '.' from trim(trailing '0' from price_rent_fee)) |
-+----------------------------+-------------+-------------------+----------------------------------------------------------------+
-| What He Doesn't Know       | COMEDY      | Standard          | 2.5                                                            |
-| The Cesar Family Christmas | FAMILY      | New Release       | 4                                                              |
-| Richard Goodhope           | DRAMA       | New Release       | 4                                                              |
-| Beatnik Fever              | COMEDY      | New Release       | 4                                                              |
-| Where Hope Dies            | DRAMA       | Discount          | 2                                                              |
-| Smokey Mountain Wildlife   | ACTION      | Discount          | 2                                                              |
-| Time to Burn               | ACTION      | Discount          | 2                                                              |
-+----------------------------+-------------+-------------------+----------------------------------------------------------------+
-7 rows in set (0.001 sec)
-
-
-
-
-Q19. MariaDB [movieroom]> select movie_genre, TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM avg(price_rent_fee))) as "Average Rental Fee" from movie join price on  movie.price_code = price.price_code group by movie_genre;
-+-------------+--------------------+
-| movie_genre | Average Rental Fee |
-+-------------+--------------------+
-| ACTION      | 2                  |
-| COMEDY      | 3.25               |
-| DRAMA       | 3                  |
-| FAMILY      | 4                  |
-+-------------+--------------------+
-4 rows in set (0.001 sec)
-
-
-
-Q20.  select movie_title, round(movie_cost/price_rent_fee, 2) as "Breakeven Rentals" from movie join price on movie.price_code = price.price_code;
-+----------------------------+-------------------+
-| movie_title                | Breakeven Rentals |
-+----------------------------+-------------------+
-| The Cesar Family Christmas |              9.99 |
-| Smokey Mountain Wildlife   |             29.98 |
-| Richard Goodhope           |             14.99 |
-| Beatnik Fever              |              7.49 |
-| Where Hope Dies            |             12.75 |
-| Time to Burn               |             22.75 |
-| What He Doesn't Know       |             23.32 |
-+----------------------------+-------------------+
-
-
-
-Q21. MariaDB [movieroom]> select movie_title, movie_year from movie where price_code is not null;
-+----------------------------+------------+
-| movie_title                | movie_year |
-+----------------------------+------------+
-| What He Doesn't Know       |       2013 |
-| The Cesar Family Christmas |       2014 |
-| Richard Goodhope           |       2015 |
-| Beatnik Fever              |       2014 |
-| Smokey Mountain Wildlife   |       2011 |
-| Where Hope Dies            |       2005 |
-| Time to Burn               |       2010 |
-+----------------------------+------------+
-7 rows in set (0.025 sec)
-
-
-
-Q22. MariaDB [movieroom]> select movie_title, movie_genre, movie_cost from movie where movie_cost between 44.99 and 49.99;
-+--------------+-------------+------------+
-| movie_title  | movie_genre | movie_cost |
-+--------------+-------------+------------+
-| Time to Burn | ACTION      |      45.49 |
-+--------------+-------------+------------+
-1 row in set (0.028 sec)
-
-
-
-Q23. MariaDB [movieroom]> select movie_title, price_description, TRIM(TRAILING '.0' FROM price_rent_fee + 0) AS price_rent_fee, movie_genre from movie join price on movie.price_code = price.price_code where movie_genre in ('FAMILY', 'COMEDY', 'DRAMA');
-+----------------------------+-------------------+----------------+-------------+
-| movie_title                | price_description | price_rent_fee | movie_genre |
-+----------------------------+-------------------+----------------+-------------+
-| The Cesar Family Christmas | New Release       | 4              | FAMILY      |
-| Richard Goodhope           | New Release       | 4              | DRAMA       |
-| Beatnik Fever              | New Release       | 4              | COMEDY      |
-| Where Hope Dies            | Discount          | 2              | DRAMA       |
-| What He Doesn't Know       | Standard          | 2.5            | COMEDY      |
-+----------------------------+-------------------+----------------+-------------+
-5 rows in set (0.002 sec)
-
-
-Q24.  MariaDB [movieroom]>  select distinct membership.mem_num, mem_fname, mem_lname, mem_balance from membership join rental on membership.mem_num = rental.mem_num;
-+---------+-----------+-----------+-------------+
-| mem_num | mem_fname | mem_lname | mem_balance |
-+---------+-----------+-----------+-------------+
-|     102 | Tami      | Dawson    |          11 |
-|     103 | Curt      | Knight    |           6 |
-|     104 | Jamal     | Melendez  |           0 |
-|     105 | Iva       | Mcclain   |          15 |
-|     107 | Rosario   | Elliott   |           5 |
-|     110 | Lewis     | Rosales   |           0 |
-|     111 | Stacy     | Mann      |           8 |
-+---------+-----------+-----------+-------------+
-7 rows in set (0.002 sec)
-
-
-
-Q25. MariaDB [movieroom]> select min(mem_balance) as "Minimum Balance", max(mem_balance) as "Maximum Balance", round(avg (mem_balance),2) as "Average Balance" from (select distinct membership.mem_num, membership.mem_balance from membership join rental on membership.mem_num = rental.mem_num) as unique_members;
-+-----------------+-----------------+-----------------+
-| Minimum Balance | Maximum Balance | Average Balance |
-+-----------------+-----------------+-----------------+
-|               0 |              15 |            6.43 |
-+-----------------+-----------------+-----------------+
-1 row in set (0.002 sec)
-
-
-
-Q26.MariaDB [movieroom]> select rental.rent_num,
-    -> date_format(rental.rent_date,'%d-%b-%y'),
-    -> detailrental.vid_num,
-    -> movie.movie_title,
-    -> date_format(detailrental.detail_duedate, '%d-%b-%y'),
-    -> date_format(detailrental.detail_returndate, '%d-%b-%y')
-    -> from rental
-    -> join detailrental on rental.rent_num = detailrental.rent_num
-    -> join video on detailrental.vid_num = video.vid_num
-    -> join movie on video.movie_num = movie.movie_num
-    -> where detailrental.detail_returndate > detailrental.detail_duedate
-    -> order by rental.rent_num, movie.movie_title;
-+----------+------------------------------------------+---------+----------------------------+------------------------------------------------------+---------------------------------------------------------+
-| rent_num | date_format(rental.rent_date,'%d-%b-%y') | vid_num | movie_title                | date_format(detailrental.detail_duedate, '%d-%b-%y') | date_format(detailrental.detail_returndate, '%d-%b-%y') |
-+----------+------------------------------------------+---------+----------------------------+------------------------------------------------------+---------------------------------------------------------+
-|     1003 | 02-Mar-16                                |   54325 | The Cesar Family Christmas | 04-Mar-16                                            | 09-Mar-16                                               |
-|     1003 | 02-Mar-16                                |   61369 | What He Doesn't Know       | 06-Mar-16                                            | 09-Mar-16                                               |
-|     1003 | 02-Mar-16                                |   61388 | Where Hope Dies            | 06-Mar-16                                            | 09-Mar-16                                               |
-|     1004 | 02-Mar-16                                |   44392 | Beatnik Fever              | 05-Mar-16                                            | 07-Mar-16                                               |
-|     1004 | 02-Mar-16                                |   34367 | Richard Goodhope           | 05-Mar-16                                            | 07-Mar-16                                               |
-+----------+------------------------------------------+---------+----------------------------+------------------------------------------------------+---------------------------------------------------------+
-5 rows in set (0.002 sec)
-
-
-
-
-Q27. MariaDB [movieroom]> select rental.rent_num,
-    -> date_format(rental.rent_date,'%d-%b-%y'),
-    -> movie.movie_title,
-    -> TRIM(TRAILING '.0' FROM detailrental.detail_fee + 0)
-    -> from rental
-    -> join detailrental on rental.rent_num = detailrental.rent_num
-    -> join video on detailrental.vid_num = video.vid_num
-    -> join movie on video.movie_num = movie.movie_num
-    -> where detailrental.detail_returndate <= detailrental.detail_duedate;
-+----------+------------------------------------------+--------------------------+------------------------------------------------------+
-| rent_num | date_format(rental.rent_date,'%d-%b-%y') | movie_title              | TRIM(TRAILING '.0' FROM detailrental.detail_fee + 0) |
-+----------+------------------------------------------+--------------------------+------------------------------------------------------+
-|     1001 | 01-Mar-16                                | Smokey Mountain Wildlife | 2                                                    |
-|     1001 | 01-Mar-16                                | Richard Goodhope         | 3.5                                                  |
-|     1001 | 01-Mar-16                                | Time to Burn             | 2                                                    |
-|     1002 | 01-Mar-16                                | Beatnik Fever            | 3.5                                                  |
-|     1004 | 02-Mar-16                                | Smokey Mountain Wildlife | 2                                                    |
-|     1005 | 02-Mar-16                                | Smokey Mountain Wildlife | 2                                                    |
-|     1005 | 02-Mar-16                                | Beatnik Fever            | 3.5                                                  |
-|     1006 | 02-Mar-16                                | Richard Goodhope         | 3.5                                                  |
-|     1008 | 03-Mar-16                                | Richard Goodhope         | 3.5                                                  |
-+----------+------------------------------------------+--------------------------+------------------------------------------------------+
+7.26)
+
+MariaDB [category]> create view EmployeeProjectView as
+    -> select
+    ->     e.empNo,
+    ->     e.fName,
+    ->     e.lName,
+    ->     p.projName,
+    ->     w.hoursWorked
+    -> from Employee e
+    -> join WorksOn w on e.empNo = w.empNo
+    -> join Project p on w.projNo = p.projNo;
+Query OK, 0 rows affected (0.034 sec)
+
+
+MariaDB [category]> select * from EmployeeProjectView;
++-------+--------+---------+----------------------------------+-------------+
+| empNo | fName  | lName   | projName                         | hoursWorked |
++-------+--------+---------+----------------------------------+-------------+
+| E1    | Ama    | Mensah  | Student Course Control System    |           8 |
+| E1    | Ama    | Mensah  | Student Course Control System    |           6 |
+| E2    | Kwame  | Asante  | Payroll System                   |           7 |
+| E3    | Akosua | Boateng | Database Management System       |           5 |
+| E4    | Kojo   | Owusu   | University Website               |           8 |
+| E5    | Efua   | Addo    | Security Monitoring System       |           6 |
+| E6    | Yaw    | Bediako | Human Resource System            |           7 |
+| E7    | Abena  | Osei    | AI Assistant                     |           8 |
+| E8    | Kofi   | Appiah  | Customer Relationship Management |           5 |
+| E9    | Adjoa  | Nyarko  | Network Monitoring               |           6 |
++-------+--------+---------+----------------------------------+-------------+
+10 rows in set (0.005 sec)
+
+
+
+
+7.27)
+MariaDB [category]> create view EmpProject(empNo, projNo, totalHours) as
+    -> select
+    ->     w.empNo,
+    ->     w.projNo,
+    ->     sum(hoursWorked)
+    -> from Employee e, Project p, WorksOn w
+    -> where e.empNo = w.empNo
+    -> and p.projNo = w.projNo
+    -> group by w.empNo, w.projNo;
+Query OK, 0 rows affected (0.031 sec)
+
+
+7.27 a)
+MariaDB [category]> select * from EmpProject;
++-------+--------+------------+
+| empNo | projNo | totalHours |
++-------+--------+------------+
+| E1    | SCCS   |         14 |
+| E2    | PAY    |          7 |
+| E3    | DBMS   |          5 |
+| E4    | WEB    |          8 |
+| E5    | SEC    |          6 |
+| E6    | HR     |          7 |
+| E7    | AI     |          8 |
+| E8    | CRM    |          5 |
+| E9    | NET    |          6 |
++-------+--------+------------+
+9 rows in set (0.031 sec)
+
+7.27 b)
+MariaDB [category]> SELECT projNo
+    -> FROM EmpProject
+    -> WHERE projNo = 'SCCS';
++--------+
+| projNo |
++--------+
+| SCCS   |
++--------+
+1 row in set (0.005 sec)
+
+7.27 c)
+MariaDB [category]> SELECT COUNT(projNo)
+    -> FROM EmpProject
+    -> WHERE empNo = 'E1';
++---------------+
+| COUNT(projNo) |
++---------------+
+|             1 |
++---------------+
+1 row in set (0.003 sec)
+
+7.27 d)
+MariaDB [category]> SELECT empNo, totalHours
+    -> FROM EmpProject
+    -> GROUP BY empNo;
++-------+------------+
+| empNo | totalHours |
++-------+------------+
+| E1    |         14 |
+| E2    |          7 |
+| E3    |          5 |
+| E4    |          8 |
+| E5    |          6 |
+| E6    |          7 |
+| E7    |          8 |
+| E8    |          5 |
+| E9    |          6 |
++-------+------------+
 9 rows in set (0.002 sec)
 
 
 
 
+7.28) A materialized view stores the result of the query physically. It can be maintained when rows are inserted or updated such that a part newly satisfies the condition partCost > 1000. But, because the view uses distinct, deletions, and some updates may require access to the base table 'Part' to determine whether the part should remain in the materialized view. Thus, maintenance without accessing 'Part' is possible only when the effect of the change can be determined solely from the modified row alone. 
 
-Q28.  MariaDB [movieroom]> select movie_num,
-    -> movie_genre,
-    -> round(
-    ->     (select avg(movie_cost)
-    ->      from movie m2
-    ->      where m2.movie_genre = movie.movie_genre), 
-    -> ) as "Average Movie Cost",
-    -> movie_cost,
-    -> round(
-    ->     ((movie_cost -
-    ->       (select avg(movie_cost)
-    ->        from movie m2
-    ->        where m2.movie_genre = movie.movie_genre))
-    ->      /
-    ->       (select avg(movie_cost)
-    ->        from movie m2
-    ->        where m2.movie_genre = movie.movie_genre)
-    ->     ) * 100, 2
-    -> ) as "Percentage Difference"
-    -> from movie;
-+-----------+-------------+--------------------+------------+-----------------------+
-| movie_num | movie_genre | Average Movie Cost | movie_cost | Percentage Difference |
-+-----------+-------------+--------------------+------------+-----------------------+
-|      1234 | FAMILY      |              39.95 |      39.95 |                  0.00 |
-|      1235 | ACTION      |              52.72 |      59.95 |                 13.71 |
-|      1236 | DRAMA       |              58.46 |      59.95 |                  2.54 |
-|      1237 | COMEDY      |              44.12 |      29.95 |                -32.12 |
-|      1238 | DRAMA       |              58.46 |      89.95 |                 53.86 |
-|      1239 | DRAMA       |              58.46 |      25.49 |                -56.40 |
-|      1245 | ACTION      |              52.72 |      45.49 |                -13.71 |
-|      1246 | COMEDY      |              44.12 |      58.29 |                 32.12 |
-+-----------+-------------+--------------------+------------+-----------------------+
-8 rows in set (0.002 sec)
+
+
+
